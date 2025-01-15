@@ -8,10 +8,19 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
             margin: 0;
             padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            width: 100%;
         }
 
         #register-form {
@@ -52,6 +61,39 @@
             border: 2px solid #000;
         }
 
+        #chatbox {
+            display: none;
+            width: 300px;
+            height: 500px;
+            margin-left: 20px;
+            padding: 10px;
+            border: 2px solid #333;
+            background-color: #fff;
+            overflow-y: scroll;
+        }
+
+        #chatbox h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #message-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            padding: 5px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            max-width: 250px;
+            font-size: 14px;
+            color: #333;
+            word-wrap: break-word;
+        }
+
         #controls {
             display: none;
             margin-top: 20px;
@@ -70,38 +112,72 @@
             width: 100px;
             height: auto;
         }
+
+        #message-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            border: 2px solid #333;
+            border-radius: 5px;
+        }
+
+        #send-btn {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #send-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <!-- Form Registrasi -->
-    <div id="register-form">
-        <h1>Ular Tangga Multiplayer</h1>
-        <p>Game ini dibuat oleh <strong>ZALLKALTIM</strong></p>
-        <p>Masukkan nama Anda untuk bermain:</p>
-        <input type="text" id="username" placeholder="Nama Pengguna" required>
-        <button id="startGame">Daftar dan Mulai</button>
-    </div>
-
-    <!-- Papan Permainan -->
-    <div id="board">
-        <!-- Tangga -->
-        <div class="tangga" style="top: 300px; left: 100px; transform: rotate(-45deg);"></div>
-        <div class="tangga" style="top: 100px; left: 300px; transform: rotate(45deg);"></div>
-
-        <!-- Ular -->
-        <div class="ular" style="top: 50px; left: 200px;">
-            <img src="https://via.placeholder.com/100x50/FF0000" alt="Ular">
-        </div>
-        <div class="ular" style="top: 200px; left: 400px;">
-            <img src="https://via.placeholder.com/100x50/FF0000" alt="Ular">
+    <!-- Container utama untuk papan permainan dan papan obrolan -->
+    <div id="container">
+        <!-- Form Registrasi -->
+        <div id="register-form">
+            <h1>Ular Tangga Multiplayer</h1>
+            <p>Game ini dibuat oleh <strong>ZALLKALTIM</strong></p>
+            <p>Masukkan nama Anda untuk bermain:</p>
+            <input type="text" id="username" placeholder="Nama Pengguna" required>
+            <button id="startGame">Daftar dan Mulai</button>
         </div>
 
-        <!-- Pemain -->
-        <div id="player1" class="player"></div>
-        <div id="player2" class="player"></div>
-        <div id="player3" class="player"></div>
-        <div id="player4" class="player"></div>
-        <div id="player5" class="player"></div>
+        <!-- Papan Permainan -->
+        <div id="board">
+            <!-- Tangga -->
+            <div class="tangga" style="top: 300px; left: 100px; transform: rotate(-45deg);"></div>
+            <div class="tangga" style="top: 100px; left: 300px; transform: rotate(45deg);"></div>
+
+            <!-- Ular -->
+            <div class="ular" style="top: 50px; left: 200px;">
+                <img src="https://via.placeholder.com/100x50/FF0000" alt="Ular">
+            </div>
+            <div class="ular" style="top: 200px; left: 400px;">
+                <img src="https://via.placeholder.com/100x50/FF0000" alt="Ular">
+            </div>
+
+            <!-- Pemain -->
+            <div id="player1" class="player"></div>
+            <div id="player2" class="player"></div>
+            <div id="player3" class="player"></div>
+            <div id="player4" class="player"></div>
+            <div id="player5" class="player"></div>
+        </div>
+
+        <!-- Papan Obrolan -->
+        <div id="chatbox">
+            <h3>Chat</h3>
+            <div id="message-container"></div>
+            <input type="text" id="message-input" placeholder="Ketik pesan...">
+            <button id="send-btn">Kirim</button>
+        </div>
     </div>
 
     <!-- Kontrol Permainan -->
@@ -152,6 +228,7 @@
             // Sembunyikan form registrasi dan tampilkan permainan
             document.getElementById("register-form").style.display = "none";
             document.getElementById("board").style.display = "grid";
+            document.getElementById("chatbox").style.display = "block";
             document.getElementById("controls").style.display = "block";
         });
 
@@ -163,6 +240,18 @@
 
             currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
             document.getElementById("playerTurn").innerText = `Turn: Player ${currentPlayerIndex + 1}`;
+        });
+
+        // Kirim pesan ke chatbox
+        document.getElementById("send-btn").addEventListener("click", () => {
+            const message = document.getElementById("message-input").value;
+            if (message) {
+                const messageElement = document.createElement("div");
+                messageElement.classList.add("chat-message");
+                messageElement.textContent = message;
+                document.getElementById("message-container").appendChild(messageElement);
+                document.getElementById("message-input").value = "";
+            }
         });
 
         function movePlayer(playerIndex, steps) {
